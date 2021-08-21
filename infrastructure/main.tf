@@ -30,26 +30,39 @@ resource "azurerm_resource_group" "default" {
 # Networking
 
 resource "azurerm_virtual_network" "default" {
-  name                = "vnet1"
+  name                = "vnet"
   location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
   address_space       = ["10.0.0.0/16"]
 
   tags = local.tags
+
+  lifecycle {
+    ignore_changes = [
+      subnet
+    ]
+  }
+  
 }
 
-resource "azurerm_subnet" "cosmos" {
-  name                 = "appservice-subnet-cosmos"
+resource "azurerm_subnet" "default" {
+  name                 = "Subnet-001"
   resource_group_name  = azurerm_resource_group.default.name
   virtual_network_name = azurerm_virtual_network.default.name
-  address_prefixes     = ["10.0.20.0/24"]
+  address_prefixes     = ["10.0.10.0/24"]
 
   enforce_private_link_endpoint_network_policies = true
-
+  
   service_endpoints = [
     "Microsoft.AzureCosmosDB",
     "Microsoft.Web"
   ]
+
+  lifecycle {
+    ignore_changes = [
+      service_endpoint_policy_ids
+    ]
+  }
 
 }
 
@@ -59,7 +72,7 @@ resource "azurerm_network_security_group" "default" {
   resource_group_name = azurerm_resource_group.default.name
 
   security_rule {
-    name                       = "test123"
+    name                       = "Allow "
     priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
@@ -74,8 +87,8 @@ resource "azurerm_network_security_group" "default" {
 
 }
 
-resource "azurerm_subnet_network_security_group_association" "cosmos" {
-  subnet_id                 = azurerm_subnet.cosmos.id
+resource "azurerm_subnet_network_security_group_association" "default" {
+  subnet_id                 = azurerm_subnet.default.id
   network_security_group_id = azurerm_network_security_group.default.id
 }
 
@@ -87,15 +100,18 @@ resource "random_integer" "ri" {
 }
 
 resource "azurerm_cosmosdb_account" "default" {
-  name                = "cosmos-db-${random_integer.ri.result}"
+  name                = "cosmos${random_integer.ri.result}"
   location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
   offer_type          = "Standard"
   kind                = "MongoDB"
+  #mongo_server_version = "4.0"
 
   public_network_access_enabled     = false
   is_virtual_network_filter_enabled = true
   network_acl_bypass_ids            = []
+
+  enable_free_tier = var.cosmos_enable_free_tier
 
   capabilities {
     name = "EnableMongo"
@@ -115,7 +131,7 @@ resource "azurerm_cosmosdb_account" "default" {
   }
 
   virtual_network_rule {
-    id = azurerm_subnet.cosmos.id
+    id = azurerm_subnet.default.id
   }
 
   tags = local.tags
@@ -123,13 +139,13 @@ resource "azurerm_cosmosdb_account" "default" {
 }
 
 resource "azurerm_private_endpoint" "cosmos" {
-  name                = "pe-cosmos-${random_integer.ri.result}"
+  name                = "pe-cosmos"
   location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
-  subnet_id           = azurerm_subnet.cosmos.id
+  subnet_id           = azurerm_subnet.default.id
 
   private_service_connection {
-    name                           = "cosmos-pe"
+    name                           = "cosmos"
     private_connection_resource_id = azurerm_cosmosdb_account.default.id
     is_manual_connection           = false
     subresource_names              = ["MongoDB"]
@@ -139,14 +155,16 @@ resource "azurerm_private_endpoint" "cosmos" {
 
 }
 
+# App Service
+
 # resource "azurerm_app_service_plan" "default" {
 #   name                = "plan-${random_integer.ri.result}"
 #   location            = azurerm_resource_group.default.location
 #   resource_group_name = azurerm_resource_group.default.name
 
 #   sku {
-#     tier = "Standard"
-#     size = "S1"
+#     tier = var.appservice_tier
+#     size = var.appservice_size
 #   }
 
 #   tags = local.tags
@@ -154,13 +172,16 @@ resource "azurerm_private_endpoint" "cosmos" {
 # }
 
 # resource "azurerm_app_service" "default" {
-#   name                = "app-${random_integer.ri.result}"
+#   name                = "app${random_integer.ri.result}"
 #   location            = azurerm_resource_group.default.location
 #   resource_group_name = azurerm_resource_group.default.name
 #   app_service_plan_id = azurerm_app_service_plan.default.id
 
 #   site_config {
-#     scm_type = "LocalGit"
+#     scm_type      = "LocalGit"
+#     always_on     = true
+#     http2_enabled = true
+#     #cors
 #   }
 
 #   app_settings = {
