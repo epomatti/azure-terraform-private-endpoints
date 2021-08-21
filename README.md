@@ -1,5 +1,16 @@
 # azure-secure-app
+
 A secure app using Azure technologies.
+
+
+## Roadmap
+
+- [x] Private Network
+- [x] Private Endpoints
+- [x] Front Door
+- [ ] WAF
+- [ ] Private DNS Zone
+- [ ] Bastion
 
 
 ## Infrastructure
