@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.71.0"
+      version = "=2.73.0"
     }
   }
 }
@@ -17,6 +17,8 @@ locals {
   }
 }
 
+# Group
+
 resource "azurerm_resource_group" "default" {
   name     = var.resource_group_name
   location = var.resource_group_location
@@ -24,6 +26,8 @@ resource "azurerm_resource_group" "default" {
   tags = local.tags
 
 }
+
+# Networking
 
 resource "azurerm_virtual_network" "default" {
   name                = "vnet1"
@@ -34,21 +38,48 @@ resource "azurerm_virtual_network" "default" {
   tags = local.tags
 }
 
-resource "azurerm_subnet" "default" {
-  name                 = "appservice-subnet1"
+resource "azurerm_subnet" "cosmos" {
+  name                 = "appservice-subnet-cosmos"
   resource_group_name  = azurerm_resource_group.default.name
   virtual_network_name = azurerm_virtual_network.default.name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = ["10.0.20.0/24"]
 
-  delegation {
-    name = "delegation"
+  enforce_private_link_endpoint_network_policies = true
 
-    service_delegation {
-      name    = "Microsoft.Web/hostingEnvironments"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"]
-    }
-  }
+  service_endpoints = [
+    "Microsoft.AzureCosmosDB",
+    "Microsoft.Web"
+  ]
+
 }
+
+resource "azurerm_network_security_group" "default" {
+  name                = "ngs"
+  location            = azurerm_resource_group.default.location
+  resource_group_name = azurerm_resource_group.default.name
+
+  security_rule {
+    name                       = "test123"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = local.tags
+
+}
+
+resource "azurerm_subnet_network_security_group_association" "cosmos" {
+  subnet_id                 = azurerm_subnet.cosmos.id
+  network_security_group_id = azurerm_network_security_group.default.id
+}
+
+# Database
 
 resource "random_integer" "ri" {
   min = 10000
@@ -62,7 +93,9 @@ resource "azurerm_cosmosdb_account" "default" {
   offer_type          = "Standard"
   kind                = "MongoDB"
 
-  network_acl_bypass_ids = []
+  public_network_access_enabled     = false
+  is_virtual_network_filter_enabled = true
+  network_acl_bypass_ids            = []
 
   capabilities {
     name = "EnableMongo"
@@ -81,61 +114,61 @@ resource "azurerm_cosmosdb_account" "default" {
     failover_priority = 0
   }
 
+  virtual_network_rule {
+    id = azurerm_subnet.cosmos.id
+  }
+
   tags = local.tags
 
 }
 
-# resource "azurerm_key_vault" "default" {
-#   name                        = "examplekeyvault"
-#   location                    = azurerm_resource_group.default.location
-#   resource_group_name         = azurerm_resource_group.default.name
-#   enabled_for_disk_encryption = true
-#   tenant_id                   = data.azurerm_client_config.current.tenant_id
-#   soft_delete_retention_days  = 7
-#   purge_protection_enabled    = false
+resource "azurerm_private_endpoint" "cosmos" {
+  name                = "pe-cosmos-${random_integer.ri.result}"
+  location            = azurerm_resource_group.default.location
+  resource_group_name = azurerm_resource_group.default.name
+  subnet_id           = azurerm_subnet.cosmos.id
 
-#   sku_name = "standard"
+  private_service_connection {
+    name                           = "cosmos-pe"
+    private_connection_resource_id = azurerm_cosmosdb_account.default.id
+    is_manual_connection           = false
+    subresource_names              = ["MongoDB"]
+  }
 
-#   access_policy {
-#     tenant_id = data.azurerm_client_config.current.tenant_id
-#     object_id = data.azurerm_client_config.current.object_id
+  tags = local.tags
 
-#     secret_permissions = [
-#       "Get",
-#     ]
+}
+
+# resource "azurerm_app_service_plan" "default" {
+#   name                = "plan-${random_integer.ri.result}"
+#   location            = azurerm_resource_group.default.location
+#   resource_group_name = azurerm_resource_group.default.name
+
+#   sku {
+#     tier = "Standard"
+#     size = "S1"
 #   }
+
+#   tags = local.tags
+
 # }
 
-resource "azurerm_app_service_plan" "default" {
-  name                = "plan-${random_integer.ri.result}"
-  location            = azurerm_resource_group.default.location
-  resource_group_name = azurerm_resource_group.default.name
+# resource "azurerm_app_service" "default" {
+#   name                = "app-${random_integer.ri.result}"
+#   location            = azurerm_resource_group.default.location
+#   resource_group_name = azurerm_resource_group.default.name
+#   app_service_plan_id = azurerm_app_service_plan.default.id
 
-  sku {
-    tier = "Standard"
-    size = "S1"
-  }
+#   site_config {
+#     scm_type = "LocalGit"
+#   }
 
-  tags = local.tags
+#   app_settings = {
+#     "COSMOS_KEY_TO_USE"                  = "primary"
+#     "COSMOS_PRIMARY_CONNECTION_STRING"   = azurerm_cosmosdb_account.default.connection_strings[0]
+#     "COSMOS_SECONDARY_CONNECTION_STRING" = azurerm_cosmosdb_account.default.connection_strings[1]
+#   }
 
-}
+#   tags = local.tags
 
-resource "azurerm_app_service" "default" {
-  name                = "app-${random_integer.ri.result}"
-  location            = azurerm_resource_group.default.location
-  resource_group_name = azurerm_resource_group.default.name
-  app_service_plan_id = azurerm_app_service_plan.default.id
-
-  site_config {
-    scm_type = "LocalGit"
-  }
-
-  app_settings = {
-    "COSMOS_KEY_TO_USE"                  = "primary"
-    "COSMOS_PRIMARY_CONNECTION_STRING"   = azurerm_cosmosdb_account.default.connection_strings[0]
-    "COSMOS_SECONDARY_CONNECTION_STRING" = azurerm_cosmosdb_account.default.connection_strings[1]
-  }
-
-  tags = local.tags
-
-}
+# }
