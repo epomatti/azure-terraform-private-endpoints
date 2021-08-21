@@ -37,12 +37,6 @@ resource "azurerm_virtual_network" "default" {
 
   tags = local.tags
 
-  # lifecycle {
-  #   ignore_changes = [
-  #     subnet
-  #   ]
-  # }
-
 }
 
 resource "azurerm_subnet" "default" {
@@ -57,12 +51,6 @@ resource "azurerm_subnet" "default" {
     "Microsoft.AzureCosmosDB",
     "Microsoft.Web"
   ]
-
-  # lifecycle {
-  #   ignore_changes = [
-  #     service_endpoint_policy_ids
-  #   ]
-  # }
 
 }
 
