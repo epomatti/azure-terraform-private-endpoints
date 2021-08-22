@@ -173,6 +173,14 @@ resource "azurerm_cosmosdb_mongo_collection" "employees" {
 
   shard_key = "name"
 
+  index {
+    keys = [
+      "_id"
+    ]
+
+    unique = true
+  }
+
 }
 
 resource "azurerm_private_endpoint" "cosmos" {
