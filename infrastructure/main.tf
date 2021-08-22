@@ -94,6 +94,20 @@ resource "azurerm_subnet_network_security_group_association" "default" {
   network_security_group_id = azurerm_network_security_group.default.id
 }
 
+# DNS
+
+resource "azurerm_private_dns_zone" "cosmos" {
+  name                = "privatelink.mongo.cosmos.azure.com"
+  resource_group_name = azurerm_resource_group.default.name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "cosmos" {
+  name                  = "cosmoslink"
+  resource_group_name   = azurerm_resource_group.default.name
+  private_dns_zone_name = azurerm_private_dns_zone.cosmos.name
+  virtual_network_id    = azurerm_virtual_network.default.id
+}
+
 # Database
 
 resource "random_integer" "ri" {
@@ -136,6 +150,10 @@ resource "azurerm_cosmosdb_account" "default" {
     id = azurerm_subnet.default.id
   }
 
+  backup {
+    type = "Continuous"
+  }
+
   tags = local.tags
 
 }
@@ -146,11 +164,28 @@ resource "azurerm_cosmosdb_mongo_database" "default" {
   account_name        = azurerm_cosmosdb_account.default.name
 }
 
+resource "azurerm_cosmosdb_mongo_collection" "employees" {
+  name                = "employees"
+  resource_group_name = azurerm_cosmosdb_account.default.resource_group_name
+  account_name        = azurerm_cosmosdb_account.default.name
+  database_name       = azurerm_cosmosdb_mongo_database.default.name
+
+  shard_key = "name"
+
+}
+
 resource "azurerm_private_endpoint" "cosmos" {
   name                = "pe-cosmos"
   location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
   subnet_id           = azurerm_subnet.default.id
+
+  private_dns_zone_group {
+    name = azurerm_private_dns_zone.cosmos.name
+    private_dns_zone_ids = [
+      azurerm_private_dns_zone.cosmos.id
+    ]
+  }
 
   private_service_connection {
     name                           = "cosmos"
@@ -159,9 +194,8 @@ resource "azurerm_private_endpoint" "cosmos" {
     subresource_names              = ["MongoDB"]
   }
 
-  tags = local.tags
-
 }
+
 
 # App Service
 
@@ -264,3 +298,4 @@ resource "azurerm_private_endpoint" "cosmos" {
 
 #######
 # https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-cosmosdb-portal?bc=/azure/cosmos-db/breadcrumb/toc.json&toc=/azure/cosmos-db/toc.json
+# https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-dns
