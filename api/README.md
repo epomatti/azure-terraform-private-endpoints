@@ -12,7 +12,7 @@ export FLASK_ENV=development
 export FLASK_APP=./src/app
 python -m flask run
 
-## Mongo
+## Local development
 
 docker pull mongo
 docker run --name some-mongo -d mongo:tag
