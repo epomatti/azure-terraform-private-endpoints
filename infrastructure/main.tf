@@ -208,19 +208,19 @@ resource "azurerm_private_endpoint" "cosmos" {
 
 # App Service
 
-# resource "azurerm_app_service_plan" "default" {
-#   name                = "plan-${random_integer.ri.result}"
-#   location            = azurerm_resource_group.default.location
-#   resource_group_name = azurerm_resource_group.default.name
+resource "azurerm_app_service_plan" "default" {
+  name                = "plan-${random_integer.ri.result}"
+  location            = azurerm_resource_group.default.location
+  resource_group_name = azurerm_resource_group.default.name
 
-#   sku {
-#     tier = var.appservice_tier
-#     size = var.appservice_size
-#   }
+  sku {
+    tier = var.appservice_tier
+    size = var.appservice_size
+  }
 
-#   tags = local.tags
+  tags = local.tags
 
-# }
+}
 
 # resource "azurerm_app_service" "default" {
 #   name                = "app${random_integer.ri.result}"
@@ -232,12 +232,10 @@ resource "azurerm_private_endpoint" "cosmos" {
 #     scm_type      = "LocalGit"
 #     always_on     = true
 #     http2_enabled = true
-#     #cors
+#     # TODO cors
 #   }
 
 #   app_settings = {
-#     "COSMOS_PRIVATE_ENDPOINT"            = azurerm_private_endpoint.cosmos.custom_dns_configs[0].fqdn
-#     "COSMOS_KEY_TO_USE"                  = "primary"
 #     "COSMOS_PRIMARY_CONNECTION_STRING"   = azurerm_cosmosdb_account.default.connection_strings[0]
 #     "COSMOS_SECONDARY_CONNECTION_STRING" = azurerm_cosmosdb_account.default.connection_strings[1]
 #   }

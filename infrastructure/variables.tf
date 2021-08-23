@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   description = "Value of the resource group name"
   type        = string
-  default     = "rg-sandbox"
+  default     = "rg-showcase"
 }
 
 variable "resource_group_location" {
@@ -19,11 +19,11 @@ variable "cosmos_enable_free_tier" {
 variable "appservice_tier" {
   description = "Tier for the App Service Plan"
   type        = string
-  default     = "Standard"
+  default     = "Premium"
 }
 
 variable "appservice_size" {
   description = "SKU for the App Service Plan"
   type        = string
-  default     = "S1"
+  default     = "P1v3"
 }
