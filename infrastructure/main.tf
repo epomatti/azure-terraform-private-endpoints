@@ -60,7 +60,7 @@ resource "azurerm_network_security_group" "default" {
   resource_group_name = azurerm_resource_group.default.name
 
   security_rule {
-    name                       = "Deny All Inbound"
+    name                       = "DenyAllInbound"
     description                = ""
     priority                   = 1000
     direction                  = "Inbound"
@@ -73,7 +73,7 @@ resource "azurerm_network_security_group" "default" {
   }
 
   security_rule {
-    name                       = "Deny All Outbound"
+    name                       = "DenyAllOutbound"
     description                = ""
     priority                   = 1000
     direction                  = "Outbound"
