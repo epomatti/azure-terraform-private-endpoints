@@ -222,87 +222,25 @@ resource "azurerm_app_service_plan" "default" {
 
 }
 
-# resource "azurerm_app_service" "default" {
-#   name                = "app${random_integer.ri.result}"
-#   location            = azurerm_resource_group.default.location
-#   resource_group_name = azurerm_resource_group.default.name
-#   app_service_plan_id = azurerm_app_service_plan.default.id
+# TODO not finished
+resource "azurerm_app_service" "default" {
+  name                = "app${random_integer.ri.result}"
+  location            = azurerm_resource_group.default.location
+  resource_group_name = azurerm_resource_group.default.name
+  app_service_plan_id = azurerm_app_service_plan.default.id
 
-#   site_config {
-#     scm_type      = "LocalGit"
-#     always_on     = true
-#     http2_enabled = true
-#     # TODO cors
-#   }
+  site_config {
+    scm_type      = "LocalGit"
+    always_on     = true
+    http2_enabled = true
+    # TODO cors
+  }
 
-#   app_settings = {
-#     "COSMOS_PRIMARY_CONNECTION_STRING"   = azurerm_cosmosdb_account.default.connection_strings[0]
-#     "COSMOS_SECONDARY_CONNECTION_STRING" = azurerm_cosmosdb_account.default.connection_strings[1]
-#   }
+  app_settings = {
+    "COSMOS_PRIMARY_CONNECTION_STRING"   = azurerm_cosmosdb_account.default.connection_strings[0]
+    "COSMOS_SECONDARY_CONNECTION_STRING" = azurerm_cosmosdb_account.default.connection_strings[1]
+  }
 
-#   tags = local.tags
+  tags = local.tags
 
-# }
-
-# resource "azurerm_frontdoor" "example" {
-#   name                                         = "app${random_integer.ri.result}"
-#   resource_group_name                          = azurerm_resource_group.default.name
-#   enforce_backend_pools_certificate_name_check = false
-
-#   frontend_endpoint {
-#     name      = random_integer.ri.result
-#     host_name = "${random_integer.ri.result}.azurefd.net"
-
-#   }
-
-#   backend_pool_load_balancing {
-#     name = "exampleLoadBalancingSettings1"
-#   }
-
-#   backend_pool_health_probe {
-#     name = "exampleHealthProbeSetting1"
-#   }
-
-#   backend_pool {
-#     name = "exampleBackendBing"
-#     backend {
-#       host_header = "www.bing.com"
-#       address     = "www.bing.com"
-#       http_port   = 80
-#       https_port  = 443
-#     }
-
-#     load_balancing_name = "exampleLoadBalancingSettings1"
-#     health_probe_name   = "exampleHealthProbeSetting1"
-#   }
-
-#   routing_rule {
-#     name               = "http_redirect"
-#     accepted_protocols = ["http"]
-#     patterns_to_match  = ["/*"]
-#     frontend_endpoints = ["exampleFrontendEndpoint1"]
-#     forwarding_configuration {
-#       forwarding_protocol = "MatchRequest"
-#       backend_pool_name   = "exampleBackendBing"
-#     }
-#   }
-
-#   routing_rule {
-#     name               = "exampleRoutingRule1"
-#     accepted_protocols = ["Http", "Https"]
-#     patterns_to_match  = ["/*"]
-#     frontend_endpoints = ["exampleFrontendEndpoint1"]
-#     forwarding_configuration {
-#       forwarding_protocol = "MatchRequest"
-#       backend_pool_name   = "exampleBackendBing"
-#     }
-#   }
-
-
-
-
-# }
-
-#######
-# https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-cosmosdb-portal?bc=/azure/cosmos-db/breadcrumb/toc.json&toc=/azure/cosmos-db/toc.json
-# https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-dns
+}
