@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 import cosmos
 
 
@@ -8,11 +9,14 @@ def get_collection():
     return database.get_collection("employees")
 
 
-def find_employee(name):
+def find_employee_by_id(id):
     employees = get_collection()
-    return employees.find(f"{{ name: {name} }}")
+    query = {
+        "_id": ObjectId(id)
+    }
+    return employees.find_one(query)
 
 
-def insert_employee(name):
+def insert_employee(employee):
     employees = get_collection()
-    return employees.insert_one(name)
+    return employees.insert_one(employee)
