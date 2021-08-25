@@ -2,6 +2,8 @@
 
 ## Local development
 
+Make sure you're using the appropriate python version: `3.9`
+
 Install Mongo DB
 
 ```bash
@@ -25,7 +27,7 @@ pipenv shell
 # App
 export FLASK_ENV=development
 export FLASK_APP=src/app
-python3 -m flask run
+python3.9 -m flask run
 
 # Development tools
 pipenv install autopep8 --dev
