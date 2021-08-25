@@ -11,7 +11,7 @@ defaults:
     
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: "{{ github.repository }}-api"
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push-image:
