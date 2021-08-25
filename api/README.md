@@ -19,14 +19,37 @@ Start the app
 
 ```bash
 # Dependencies
-pipenv install
+pipenv install --dev
 pipenv shell
 
 # App
 export FLASK_ENV=development
-export FLASK_APP=./src/app
+export FLASK_APP=src/app
 python3 -m flask run
 
 # Development tools
 pipenv install autopep8 --dev
+```
+
+
+## Testing with Docker locally
+
+Pull MongoDB
+
+```bash
+# pull pongo
+docker pull mongo
+
+#build the app
+docker build -t big-aztf-app .
+```
+
+Run docker compose
+
+```bash
+# start it
+docker-compose up -d
+
+# troubleshoot
+docker-compose logs -f
 ```

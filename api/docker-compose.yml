@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  app:
+    image: big-aztf-app
+    hostname: app
+    ports:
+      - 5000:5000
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      COSMOS_CONNECTION_STRING: mongodb://root:root@mongo:27017
+  mongo:  
+    image: mongo
+    volumes:
+      - mongo-data:/var/lib/mongo
+    environment: 
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+volumes:
+  mongo-data:
