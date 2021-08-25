@@ -6,6 +6,7 @@ WORKDIR /app
 
 COPY Pipfile Pipfile
 COPY Pipfile.lock Pipfile.lock
+RUN python3 -m pip install --upgrade pip
 RUN pip install pipenv
 RUN pipenv install --system --deploy --ignore-pipfile
 
