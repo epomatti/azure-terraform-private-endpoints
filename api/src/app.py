@@ -9,6 +9,11 @@ load_dotenv()
 app = Flask(__name__)
 
 
+@app.route("/api/healthcheck", methods=['HEAD'])
+def healtcheck():
+    return ""
+
+
 @app.route("/api/employee/<string:id>", methods=['GET'])
 def get_employee(id):
     result = employee.find_employee_by_id(id)
