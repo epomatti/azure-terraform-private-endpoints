@@ -21,7 +21,7 @@ Start the app
 
 ```bash
 # Dependencies
-pipenv install --dev
+pipenv install --python 3.9 --dev
 pipenv shell
 
 # App
