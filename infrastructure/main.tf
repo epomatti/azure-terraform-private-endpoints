@@ -222,6 +222,7 @@ resource "azurerm_linux_web_app" "default" {
   resource_group_name = azurerm_resource_group.default.name
   location            = azurerm_resource_group.default.location
   service_plan_id     = azurerm_service_plan.default.id
+  https_only          = true
 
   site_config {
     always_on = true
@@ -237,6 +238,7 @@ resource "azurerm_linux_web_app" "default" {
     DOCKER_REGISTRY_SERVER_URL         = var.appservice_docker_registry_server_url
     COSMOS_PRIMARY_CONNECTION_STRING   = azurerm_cosmosdb_account.default.connection_strings[0]
     COSMOS_SECONDARY_CONNECTION_STRING = azurerm_cosmosdb_account.default.connection_strings[1]
+    WEBSITES_PORT                      = 5000
   }
 
   tags = local.tags
