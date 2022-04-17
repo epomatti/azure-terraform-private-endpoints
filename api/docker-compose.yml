@@ -10,7 +10,8 @@ services:
     volumes:
       - ./:/app
     environment:
-      COSMOS_CONNECTION_STRING: mongodb://root:root@mongo:27017
+      COSMOS_PRIMARY_CONNECTION_STRING: mongodb://root:root@mongo:27017
+      COSMOS_SECONDARY_CONNECTION_STRING: mongodb://root:root@mongo:27017
   mongo:  
     image: mongo
     volumes:

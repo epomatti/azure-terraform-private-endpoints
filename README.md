@@ -65,13 +65,11 @@ python3 -m flask run
 ## Testing with Docker locally
 
 ```bash
-# pull pongo
+# pull/build
 docker pull mongo
-
-#build the app
 sudo docker build -t big-aztf-app .
 
-# start it
+# compose up
 docker-compose up -d
 ```
 
