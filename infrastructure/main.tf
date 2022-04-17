@@ -228,7 +228,7 @@ resource "azurerm_linux_web_app" "default" {
 
     application_stack {
       docker_image     = "epomatti/big-azure-terraform-showcase"
-      docker_image_tag = "main"
+      docker_image_tag = "latest"
     }
   }
 

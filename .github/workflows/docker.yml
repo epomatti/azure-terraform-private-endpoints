@@ -37,6 +37,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v2
         with:
+          context: ./api
           push: true
           tags: epomatti/big-azure-terraform-showcase:latest
 
