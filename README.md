@@ -2,8 +2,7 @@
 
 A showcase project demonstrating advanced Azure features using Terraform to build secure, reliable, scalable, and highly-available applications.
 
-
-## Infrastructure
+## Running it
 
 Log into Azure with your favorite tool:
 
@@ -14,42 +13,52 @@ az login
 Deploy the resources:
 
 ```sh
+cd ./infrastructure
+
 terraform init
 terraform plan
 terraform apply -auto-approve
 ```
 
+This will take a long time.
+
 ## Local development
 
-Make sure you're using the appropriate python version: `3.9`
+Begin by entering the API module:
 
-Install Mongo DB
+```sh
+cd ./api
+```
+
+### Mongo DB
 
 ```bash
 docker pull mongo
-docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME="<USERNAME>" -e MONGO_INITDB_ROOT_PASSWORD="<PASSWORD>" mongo
+
+docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME="app" \
+  -e MONGO_INITDB_ROOT_PASSWORD="p4ssw0rd" mongo
 ```
 
-Setup the `.env` file environment varialbes
+### Python API
+
+Setup the `.env` file environment variables:
 
 ```bash
-cp resources/development/development.env .env
+cp resources/development.env .env
 ```
 
 Start the app
 
 ```bash
 # Dependencies
-pipenv install --python 3.9 --dev
 pipenv shell
+pipenv install
 
 # App
 export FLASK_ENV=development
 export FLASK_APP=src/app
-python3.9 -m flask run
 
-# Development tools
-pipenv install autopep8 --dev
+python3 -m flask run
 ```
 
 
