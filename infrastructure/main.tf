@@ -54,6 +54,30 @@ resource "azurerm_subnet" "default" {
 
 }
 
+resource "azurerm_subnet" "apps" {
+  name                 = "Subnet-002"
+  resource_group_name  = azurerm_resource_group.default.name
+  virtual_network_name = azurerm_virtual_network.default.name
+  address_prefixes     = ["10.0.20.0/24"]
+
+  enforce_private_link_endpoint_network_policies = true
+
+  service_endpoints = [
+    "Microsoft.AzureCosmosDB",
+    "Microsoft.Web"
+  ]
+
+  delegation {
+    name = "app-delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+}
+
 resource "azurerm_network_security_group" "default" {
   name                = "ngs"
   location            = azurerm_resource_group.default.location
@@ -109,6 +133,17 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmos" {
   registration_enabled  = true
 }
 
+# Storage
+
+resource "azurerm_storage_account" "default" {
+  name                     = "st${random_integer.ri.result}"
+  resource_group_name      = azurerm_resource_group.default.name
+  location                 = azurerm_resource_group.default.location
+  account_tier             = "Standard"
+  account_replication_type = "GZRS"
+  tags                     = local.tags
+}
+
 # Database
 
 resource "random_integer" "ri" {
@@ -149,6 +184,10 @@ resource "azurerm_cosmosdb_account" "default" {
 
   virtual_network_rule {
     id = azurerm_subnet.default.id
+  }
+
+  virtual_network_rule {
+    id = azurerm_subnet.apps.id
   }
 
   backup {
@@ -242,5 +281,54 @@ resource "azurerm_linux_web_app" "default" {
   }
 
   tags = local.tags
+
+}
+
+resource "azurerm_app_service_virtual_network_swift_connection" "default" {
+  app_service_id = azurerm_linux_web_app.default.id
+  subnet_id      = azurerm_subnet.apps.id
+}
+
+# Log Analytics
+
+resource "azurerm_log_analytics_workspace" "default" {
+  name                = "log${random_integer.ri.result}"
+  location            = azurerm_resource_group.default.location
+  resource_group_name = azurerm_resource_group.default.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+}
+
+resource "azurerm_monitor_diagnostic_setting" "default" {
+  name                       = "Python API Application Logs"
+  target_resource_id         = azurerm_linux_web_app.default.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.default.id
+
+  log {
+    category = "AppServiceConsoleLogs"
+    enabled  = true
+
+    retention_policy {
+      enabled = true
+    }
+  }
+
+  log {
+    category = "AppServiceAppLogs"
+    enabled  = true
+
+    retention_policy {
+      enabled = true
+    }
+  }
+
+  log {
+    category = "AppServiceHTTPLogs"
+    enabled  = true
+
+    retention_policy {
+      enabled = true
+    }
+  }
 
 }
