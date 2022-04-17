@@ -1,6 +1,13 @@
-# Azure-Terraform Showcase
+# Azure-Terraform Private Network
 
-A showcase project demonstrating advanced Azure features using Terraform to build secure, reliable, scalable, and highly-available applications.
+A showcase project demonstrating private networks and private endpoints on Azure with Terraform.
+
+- [x] Virtual Network Inbound / Outbound protection (NSG)
+- [x] Cosmos DB Network Restrictions
+- [x] Cosmos DB Private Endpoints + Standard Private DNS Zone
+- [x] App Services
+
+<img src=".docs/solution.png" width=550>
 
 ## Running it
 
@@ -22,7 +29,7 @@ terraform apply -auto-approve
 
 This will take a long time.
 
-## Local development
+## API local development
 
 Begin by entering the API module:
 
@@ -71,26 +78,4 @@ sudo docker build -t big-aztf-app .
 
 # compose up
 docker-compose up -d
-```
-
-
-## Roadmap
-
-
-The following capabilities are implemented:
-
-- [x] Virtual Network Inbound / Outbound protection (NSG)
-- [x] Cosmos DB Network Restrictions
-- [x] Cosmos DB Private Endpoints + Standard Private DNS Zone
-- [ ] Key Vault
-- [ ] App Services
-- [ ] Front Door
-- [ ] WAF
-- [ ] Bastion
-- [ ] Kubernetes
-
-## Sources
-
-```
-
 ```

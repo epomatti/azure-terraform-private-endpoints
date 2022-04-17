@@ -133,17 +133,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmos" {
   registration_enabled  = true
 }
 
-# Storage
-
-resource "azurerm_storage_account" "default" {
-  name                     = "st${random_integer.ri.result}"
-  resource_group_name      = azurerm_resource_group.default.name
-  location                 = azurerm_resource_group.default.location
-  account_tier             = "Standard"
-  account_replication_type = "GZRS"
-  tags                     = local.tags
-}
-
 # Database
 
 resource "random_integer" "ri" {
