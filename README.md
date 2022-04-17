@@ -2,50 +2,82 @@
 
 A showcase project demonstrating advanced Azure features using Terraform to build secure, reliable, scalable, and highly-available applications.
 
-## To start the project
-
-### Cloud Deployment
-Open the [/infrasctructure](infrastructure) project and run the code with Terraform and everything must be setup automatically.
-
-```bash
-terraform init
-terraform apply -auto-approve
-```
-The Python API is automatically deployed from the built packages in GHCR that you can find [here](https://github.com/epomatti/big-azure-terraform-showcase/pkgs/container/big-azure-terraform-showcase).
-
-### Local Deployment
-
-To run the project locally simply enter [/python api](/api) project and use Docker.
-
-```bash
-docker-compose up -d
-```
 
 ## Infrastructure
 
-
-Infra-as-code resources for the Showcase project.
-
-### Provisioning
-
-Authenticate [locally to Azure](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli) and use the [Terraform CLI ](https://www.terraform.io/docs/cli/install/apt.html) for local testing.
+Log into Azure with your favorite tool:
 
 ```sh
-# Create resources for testing
-terraform init
-terraform plan
-terraform apply
-
-# Destroy the test resources
-terraform destroy
+az login
 ```
 
-Sources: [Private Endpoint Cosmos](https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-cosmosdb-portal?bc=/azure/cosmos-db/breadcrumb/toc.json&toc=/azure/cosmos-db/toc.json), [Private Endpoint DNS](https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-dns)
+Deploy the resources:
+
+```sh
+terraform init
+terraform plan
+terraform apply -auto-approve
+```
+
+## Local development
+
+Make sure you're using the appropriate python version: `3.9`
+
+Install Mongo DB
+
+```bash
+docker pull mongo
+docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME="<USERNAME>" -e MONGO_INITDB_ROOT_PASSWORD="<PASSWORD>" mongo
+```
+
+Setup the `.env` file environment varialbes
+
+```bash
+cp resources/development/development.env .env
+```
+
+Start the app
+
+```bash
+# Dependencies
+pipenv install --python 3.9 --dev
+pipenv shell
+
+# App
+export FLASK_ENV=development
+export FLASK_APP=src/app
+python3.9 -m flask run
+
+# Development tools
+pipenv install autopep8 --dev
+```
 
 
-## Architecture
+## Testing with Docker locally
 
-![Architecture](docs/media/diagram.png "Architecture")
+Pull MongoDB
+
+```bash
+# pull pongo
+docker pull mongo
+
+#build the app
+docker build -t big-aztf-app .
+```
+
+Run docker compose
+
+```bash
+# start it
+docker-compose up -d
+
+# troubleshoot
+docker-compose logs -f
+```
+
+
+## Roadmap
+
 
 The following capabilities are implemented:
 
@@ -58,3 +90,9 @@ The following capabilities are implemented:
 - [ ] WAF
 - [ ] Bastion
 - [ ] Kubernetes
+
+## Sources
+
+```
+
+```
