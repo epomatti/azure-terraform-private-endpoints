@@ -19,5 +19,5 @@ variable "cosmos_enable_free_tier" {
 variable "appservice_sku_name" {
   description = "Tier for the App Service Plan"
   type        = string
-  default     = "Premium"
+  default     = "P1v3"
 }
