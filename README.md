@@ -64,24 +64,15 @@ python3 -m flask run
 
 ## Testing with Docker locally
 
-Pull MongoDB
-
 ```bash
 # pull pongo
 docker pull mongo
 
 #build the app
-docker build -t big-aztf-app .
-```
+sudo docker build -t big-aztf-app .
 
-Run docker compose
-
-```bash
 # start it
 docker-compose up -d
-
-# troubleshoot
-docker-compose logs -f
 ```
 
 
