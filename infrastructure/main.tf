@@ -227,14 +227,14 @@ resource "azurerm_linux_web_app" "default" {
     always_on = true
 
     application_stack {
-      docker_image     = "epomatti/big-azure-terraform-showcase"
-      docker_image_tag = "latest"
+      docker_image     = var.appservice_docker_image
+      docker_image_tag = var.appservice_docker_image_tag
     }
   }
 
   app_settings = {
     DOCKER_ENABLE_CI                   = true
-    #DOCKER_REGISTRY_SERVER_URL         = "https://ghcr.io"
+    DOCKER_REGISTRY_SERVER_URL         = var.appservice_docker_registry_server_url
     COSMOS_PRIMARY_CONNECTION_STRING   = azurerm_cosmosdb_account.default.connection_strings[0]
     COSMOS_SECONDARY_CONNECTION_STRING = azurerm_cosmosdb_account.default.connection_strings[1]
   }
