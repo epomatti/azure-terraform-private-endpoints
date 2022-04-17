@@ -234,7 +234,7 @@ resource "azurerm_linux_web_app" "default" {
 
   app_settings = {
     DOCKER_ENABLE_CI                   = true
-    DOCKER_REGISTRY_SERVER_URL         = "https://ghcr.io"
+    #DOCKER_REGISTRY_SERVER_URL         = "https://ghcr.io"
     COSMOS_PRIMARY_CONNECTION_STRING   = azurerm_cosmosdb_account.default.connection_strings[0]
     COSMOS_SECONDARY_CONNECTION_STRING = azurerm_cosmosdb_account.default.connection_strings[1]
   }
