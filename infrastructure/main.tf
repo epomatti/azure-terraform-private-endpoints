@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.73.0"
+      version = "=3.2.0"
     }
   }
 }
@@ -208,32 +208,27 @@ resource "azurerm_private_endpoint" "cosmos" {
 
 # App Service
 
-resource "azurerm_app_service_plan" "default" {
+resource "azurerm_service_plan" "default" {
   name                = "plan-${random_integer.ri.result}"
-  location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
-
-  sku {
-    tier = var.appservice_tier
-    size = var.appservice_size
-  }
-
-  tags = local.tags
-
+  location            = azurerm_resource_group.default.location
+  os_type             = "Linux"
+  sku_name            = var.appservice_sku_name
+  tags                = local.tags
 }
 
-# TODO not finished
-resource "azurerm_app_service" "default" {
+resource "azurerm_linux_web_app" "default" {
   name                = "app${random_integer.ri.result}"
-  location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
-  app_service_plan_id = azurerm_app_service_plan.default.id
+  location            = azurerm_resource_group.default.location
+  service_plan_id     = azurerm_service_plan.default.id
 
   site_config {
-    scm_type      = "LocalGit"
-    always_on     = true
-    http2_enabled = true
-    # TODO cors
+    always_on = true
+
+    application_stack {
+      python_version = 3.9
+    }
   }
 
   app_settings = {

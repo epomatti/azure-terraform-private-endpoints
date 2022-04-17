@@ -7,7 +7,7 @@ variable "resource_group_name" {
 variable "resource_group_location" {
   description = "Value of the resource group location"
   type        = string
-  default     = "eastus"
+  default     = "eastus2"
 }
 
 variable "cosmos_enable_free_tier" {
@@ -16,14 +16,8 @@ variable "cosmos_enable_free_tier" {
   default     = true
 }
 
-variable "appservice_tier" {
+variable "appservice_sku_name" {
   description = "Tier for the App Service Plan"
   type        = string
   default     = "Premium"
-}
-
-variable "appservice_size" {
-  description = "SKU for the App Service Plan"
-  type        = string
-  default     = "P1v3"
 }
