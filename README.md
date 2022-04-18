@@ -69,7 +69,7 @@ python3 -m flask run
 ```
 
 
-## Testing with Docker locally
+## Compose
 
 ```bash
 # pull/build
